@@ -4,7 +4,7 @@ public class Elevator
     public int CurrentFloor = 1;
     public int TopFloor => 10;
     public int Time = 0;
-    public Direction Direction;
+    public Direction Direction = Direction.Up;
     public List<Passenger> Passengers = [];
 
     public List<Floor> Floors = Enumerable.Range(1, 10).Select(x => new Floor(x)).ToList();
@@ -20,13 +20,13 @@ public class PendingRequest
 
 public class Passenger(int desiredFloor)
 {
-    public int DesiredFloor;
+    public int DesiredFloor = desiredFloor;
 }
 
 public enum Direction
 {
-    Up,
-    Down,
+    Up =  'U',
+    Down = 'D',
 }
 
 public class Floor
