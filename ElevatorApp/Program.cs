@@ -50,9 +50,9 @@ while (command != "X")
         elevator.EmbarkPassenger(desiredFloor);
     }
 
-    Console.WriteLine("All passengers have embarked");
+    Console.WriteLine($"{waitingPassengers} have embarked at floor {elevator.CurrentFloor}");
 
-    Console.WriteLine($"Time: {elevator.Time}, Direction: {elevator.Direction}, floor: {elevator.CurrentFloor}");
+    Console.WriteLine($"TICK: Time: {elevator.Time}, Direction: {elevator.Direction}, floor: {elevator.CurrentFloor}");
     elevator.Move();
 }
 

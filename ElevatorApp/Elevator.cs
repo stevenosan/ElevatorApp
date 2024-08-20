@@ -17,13 +17,19 @@ public class Elevator
         var nextPickupVal = PendingRequests.FirstOrDefault()?.Floor;
         var nextRequestedPickupFloor = nextPickupVal ??= 0;
 
-        var direction = nextFloorVal > nextRequestedPickupFloor || nextRequestedPickupFloor > CurrentFloor ? Direction.Up : Direction.Down;
-        return direction;
+        if (nextFloorVal.HasValue)
+        {
+            return nextFloorVal.Value > CurrentFloor ? Direction.Up : Direction.Down;
+        }
+        else
+        {
+            return nextRequestedPickupFloor > CurrentFloor ? Direction.Up : Direction.Down;
+        }
     }
 
     private int calculateNextFloor()
     {
-        if(Direction == Direction.Up)
+        if (Direction == Direction.Up)
         {
             var destinationFloor = Passengers.Where(p => p.DesiredFloor > CurrentFloor).Select(p => p.DesiredFloor)
                 .Concat(PendingRequests.Where(r => r.Floor > CurrentFloor).Select(r => r.Floor)).OrderBy(f => f).First();
@@ -48,20 +54,8 @@ public class Elevator
     {
         var passenger = new Passenger(destinationFloor);
         Passengers.Add(passenger);
-        var request = PendingRequests.Single(r => r.Floor == CurrentFloor);
+        var request = PendingRequests.First(r => r.Floor == CurrentFloor);
         PendingRequests.Remove(request);
-
-
-        //if (PendingRequests.Any(r => r.Floor == CurrentFloor))
-        //{
-        //    //Console.WriteLine($"The elevator is currently {CurrentFloor} at floor with a waiting passenger going {PendingRequests.First().RequestedDirection}. Please enter your desired floor (1-10) for this passenger:");
-        //    //var desiredFloor = int.Parse(Console.ReadLine());
-
-        //    var passenger = new Passenger(destinationFloor);
-        //    Passengers.Add(passenger);
-
-        //    PendingRequests.RemoveAll(r => r.Floor == CurrentFloor);
-        //}
     }
 
     public void RequestElevator(int passengerFloor, Direction direction)
@@ -71,14 +65,18 @@ public class Elevator
 
     public void Move()
     {
-        if(Direction == Direction.Up)
+        if (CurrentFloor == 1)
         {
-            CurrentFloor++;
+            if (Direction == Direction.Up)
+            {
+                CurrentFloor++;
+            }
+            else
+            {
+                CurrentFloor--;
+            }
         }
-        else
-        {
-            CurrentFloor--;
-        }
+
         Time++;
     }
 }
