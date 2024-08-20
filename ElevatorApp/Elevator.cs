@@ -8,8 +8,6 @@ public class Elevator
     private Direction _direction;
     public List<Passenger> Passengers = [];
 
-    //public List<Floor> Floors = Enumerable.Range(1, 10).Select(x => new Floor(x)).ToList();
-
     public List<PendingRequest> PendingRequests = new List<PendingRequest>();
 
     private Direction calculateDirection()
@@ -19,7 +17,8 @@ public class Elevator
         var nextPickupVal = PendingRequests.FirstOrDefault()?.Floor;
         var nextRequestedPickupFloor = nextPickupVal ??= 0;
 
-        return nextFloorVal > nextRequestedPickupFloor && nextRequestedPickupFloor < CurrentFloor ? Direction.Up : Direction.Down;
+        var direction = nextFloorVal > nextRequestedPickupFloor || nextRequestedPickupFloor > CurrentFloor ? Direction.Up : Direction.Down;
+        return direction;
     }
 
     private int calculateNextFloor()
@@ -40,23 +39,29 @@ public class Elevator
         }
     }
 
-    public void DisembarkPassengers()
+    public int DisembarkPassengers()
     {
-        Passengers.RemoveAll(p => p.DesiredFloor == CurrentFloor);
+        return Passengers.RemoveAll(p => p.DesiredFloor == CurrentFloor);
     }
 
     public void EmbarkPassenger(int destinationFloor)
     {
-        if (PendingRequests.Any(r => r.Floor == CurrentFloor))
-        {
-            //Console.WriteLine($"The elevator is currently {CurrentFloor} at floor with a waiting passenger going {PendingRequests.First().RequestedDirection}. Please enter your desired floor (1-10) for this passenger:");
-            //var desiredFloor = int.Parse(Console.ReadLine());
+        var passenger = new Passenger(destinationFloor);
+        Passengers.Add(passenger);
+        var request = PendingRequests.Single(r => r.Floor == CurrentFloor);
+        PendingRequests.Remove(request);
 
-            var passenger = new Passenger(destinationFloor);
-            Passengers.Add(passenger);
 
-            PendingRequests.RemoveAll(r => r.Floor == CurrentFloor);
-        }
+        //if (PendingRequests.Any(r => r.Floor == CurrentFloor))
+        //{
+        //    //Console.WriteLine($"The elevator is currently {CurrentFloor} at floor with a waiting passenger going {PendingRequests.First().RequestedDirection}. Please enter your desired floor (1-10) for this passenger:");
+        //    //var desiredFloor = int.Parse(Console.ReadLine());
+
+        //    var passenger = new Passenger(destinationFloor);
+        //    Passengers.Add(passenger);
+
+        //    PendingRequests.RemoveAll(r => r.Floor == CurrentFloor);
+        //}
     }
 
     public void RequestElevator(int passengerFloor, Direction direction)
@@ -66,9 +71,15 @@ public class Elevator
 
     public void Move()
     {
-        var nextFloor = calculateNextFloor();
-
-        Time = Math.Abs(nextFloor - CurrentFloor);
+        if(Direction == Direction.Up)
+        {
+            CurrentFloor++;
+        }
+        else
+        {
+            CurrentFloor--;
+        }
+        Time++;
     }
 }
 
@@ -87,15 +98,4 @@ public enum Direction
 {
     Up = 'U',
     Down = 'D',
-}
-
-public class Floor
-{
-    public int FloorNumber;
-    public Passenger WaitingPassenger;
-
-    public Floor(int floorNumber)
-    {
-        FloorNumber = floorNumber;
-    }
 }
