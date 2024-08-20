@@ -67,16 +67,6 @@ while (command != "X")
     var nextDesiredFloor = nextDesiredFloorVal ??= 0;
     var nextRequestedWaitingFloor = nextRequestedWaitingFloorVal ??= 0;
 
-    //set elevator direction
-    if (nextDesiredFloor > elevator.CurrentFloor || nextRequestedWaitingFloor > elevator.CurrentFloor)
-    {
-        elevator.Direction = Direction.Up;
-    }
-    else
-    {
-        elevator.Direction = Direction.Down;
-    }
-
     Console.WriteLine($"All passengers have embarked/disembarked. Time is currently {elevator.Time}. Direction: {elevator.Direction}. Current Floor: {elevator.CurrentFloor}");
 }
 
