@@ -65,7 +65,7 @@ public class Elevator
 
     public void Move()
     {
-        if (CurrentFloor == 1)
+        if(Passengers.Any() || PendingRequests.Any())
         {
             if (Direction == Direction.Up)
             {
