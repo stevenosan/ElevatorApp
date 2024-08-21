@@ -74,7 +74,7 @@ public class Tests
     public void GivenDestinationFloor_WhenEmbarkPassenger_ThenPassengerAddedToEndWithDestinationFloor()
     {
         var currentPassenger = new Passenger(5);
-        elevator.PendingRequests.Add(new PendingRequest { RequestedDirection = Direction.Up, Floor = 1 });
+        elevator.PendingRequests.Add(new PendingRequest { Direction = Direction.Up, Floor = 1 });
         elevator.Passengers.Add(currentPassenger);
 
         var destinationFloor = 1234;
@@ -97,11 +97,22 @@ public class Tests
     }
 
     [Test]
+    public void GivenOnBoardPassengerThatWantsToGoDown_WhenGetDirection_ThenDirectionIsDown()
+    {
+        var passenger = new Passenger(5);
+        elevator.CurrentFloor = 7;
+        elevator.Passengers.Add(passenger);
+
+        var result = elevator.Direction;
+        result.Should().Be(Direction.Down);
+    }
+
+    [Test]
     public void GivenOnBoardPassengerThatWantsToGoUp_ButWaitingPassengerWantsToGoDown_WhenGetDirection_ThenDirectionIsUp()
     {
         var passenger = new Passenger(5);
 
-        var request = new PendingRequest { Floor = 3, RequestedDirection = Direction.Down };
+        var request = new PendingRequest { Floor = 3, Direction = Direction.Down };
 
         elevator.Passengers.Add(passenger);
         elevator.PendingRequests.Add(request);
@@ -116,7 +127,7 @@ public class Tests
         elevator.CurrentFloor = 7;
         var passenger = new Passenger(5);
 
-        var request = new PendingRequest { Floor = 3, RequestedDirection = Direction.Down };
+        var request = new PendingRequest { Floor = 3, Direction = Direction.Down };
 
         elevator.Passengers.Add(passenger);
         elevator.PendingRequests.Add(request);
@@ -128,7 +139,7 @@ public class Tests
     [Test]
     public void GivenNoOnboardPassengerAndRequestIsAbove_WhenGetDirection_ThenDirectionIsUp()
     {
-        var request = new PendingRequest { Floor = 3, RequestedDirection = Direction.Down };
+        var request = new PendingRequest { Floor = 3, Direction = Direction.Down };
 
         elevator.PendingRequests.Add(request);
 
@@ -140,7 +151,7 @@ public class Tests
     public void GivenNoOnboardPassengerAndRequestIsBelow_WhenGetDirection_ThenDirectionIsDown()
     {
         elevator.CurrentFloor = 5;
-        var request = new PendingRequest { Floor = 3, RequestedDirection = Direction.Down };
+        var request = new PendingRequest { Floor = 3, Direction = Direction.Down };
 
         elevator.PendingRequests.Add(request);
 

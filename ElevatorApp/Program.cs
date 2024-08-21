@@ -16,7 +16,7 @@ while (command != "X")
     if(command != "S")
     {
         var result = int.TryParse(command, out int floor);
-        while (!result || floor > 10 || floor < 1)
+        while (!result || elevator.TopFloor > 10 || floor < 1)
         {
             Console.Write("That was not a valid floor number. Please enter 1-10: ");
             command = Console.ReadLine();
@@ -31,24 +31,26 @@ while (command != "X")
     var passengersDisembarked = elevator.DisembarkPassengers();
     Console.WriteLine($"{passengersDisembarked} passengers disembarked on Floor {elevator.CurrentFloor}. ");
 
-    var waitingPassengers = elevator.PendingRequests.Count(r => r.Floor == elevator.CurrentFloor);
-    Console.WriteLine($"There are {waitingPassengers} passengers waiting at the current floor {elevator.CurrentFloor}");
+    elevator.EmbarkPassengers();
 
-    for (int i = 0; i < waitingPassengers; i++)
-    {
-        Console.Write("Enter the desired floor of the user (1-10): ");
-        var result = int.TryParse(Console.ReadLine(), out int desiredFloor);
+    //var waitingPassengers = elevator.PendingRequests.Count(r => r.Floor == elevator.CurrentFloor);
+    //Console.WriteLine($"There are {waitingPassengers} passengers waiting at the current floor {elevator.CurrentFloor}");
 
-        while (!result || desiredFloor > 10 || desiredFloor < 1)
-        {
-            Console.Write("That was not a valid floor number. Please enter 1-10: ");
-            result = int.TryParse(Console.ReadLine(), out desiredFloor);
-        }
+    //for (int i = 0; i < waitingPassengers; i++)
+    //{
+    //    Console.Write("Enter the desired floor of the user (1-10): ");
+    //    var result = int.TryParse(Console.ReadLine(), out int desiredFloor);
 
-        elevator.EmbarkPassenger(desiredFloor);
-    }
+    //    while (!result || desiredFloor > elevator.TopFloor || desiredFloor < 1)
+    //    {
+    //        Console.Write("That was not a valid floor number. Please enter 1-10: ");
+    //        result = int.TryParse(Console.ReadLine(), out desiredFloor);
+    //    }
 
-    Console.WriteLine($"{waitingPassengers} have embarked at floor {elevator.CurrentFloor}");
+    //    elevator.EmbarkPassenger(desiredFloor);
+    //}
+
+    //Console.WriteLine($"{waitingPassengers} have embarked at floor {elevator.CurrentFloor}");
     Console.WriteLine("----------------TICK----------------");
     Console.WriteLine($"Time: {elevator.Time}, Direction: {elevator.Direction}, floor: {elevator.CurrentFloor}");
     elevator.Move();
