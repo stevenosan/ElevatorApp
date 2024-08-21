@@ -1,6 +1,21 @@
 ﻿namespace ElevatorApp;
 public class Elevator
 {
+    public int MinFloor
+    {
+        get
+        {
+            return Direction == Direction.Up ? CurrentFloor + 1 : 1;
+        }
+    }
+    public int MaxFloor
+    {
+        get
+        {
+            return Direction == Direction.Up ? TopFloor : CurrentFloor - 1;
+        }
+    }
+
     public int CurrentFloor = 1;
     public int TopFloor => 10;
     public int Time = 0;
@@ -12,13 +27,13 @@ public class Elevator
 
     public int DisembarkPassengers()
     {
-        var disembarkCount = Passengers.RemoveAll(p => p.DesiredFloor == CurrentFloor);
+        var disembarkCount = Passengers.RemoveAll(p => p.Floor == CurrentFloor);
 
         if (!Passengers.Any() && !PendingRequests.Any())
         {
             Direction = Direction.Waiting;
         }
-        
+
         if (PendingRequests.Any() && !Passengers.Any())
         {
             _finalDestinationFloor = PendingRequests.First().Floor;
@@ -28,61 +43,24 @@ public class Elevator
         return disembarkCount;
     }
 
-    public void EmbarkPassengers()
+    public void EmbarkPassengers_Updated(int[] desiredPassengerFloors)
     {
-        var waitingPassengers = PendingRequests.Where(r => r.Direction == Direction && r.Floor == CurrentFloor).ToList();
+        var passengers = desiredPassengerFloors.Select(f => new Passenger(f));
 
-        if (!waitingPassengers.Any())
+        if (Direction == Direction.Up && desiredPassengerFloors.Max() > _finalDestinationFloor)
         {
-            Console.WriteLine($"There are no passengers waiting at current floor #{CurrentFloor} to go {Direction}. Not taking any passengers.");
-            return;
+            _finalDestinationFloor = desiredPassengerFloors.Max();
+        }
+        else
+        {
+            _finalDestinationFloor = desiredPassengerFloors.Min();
         }
 
-        Console.WriteLine($"There are {waitingPassengers.Count()} people waiting to go {Direction} at the current floor #{CurrentFloor}");
+        Passengers.AddRange(passengers);
 
-        foreach (var newPassenger in waitingPassengers)
-        {
-            if (Direction == Direction.Up)
-            {
-                Console.Write($"Passenger going up. Please enter a floor between {CurrentFloor} and {TopFloor}: ");
-                var result = int.TryParse(Console.ReadLine(), out int desiredFloor);
-
-                while (desiredFloor < CurrentFloor || desiredFloor > TopFloor)
-                {
-                    Console.Write($"That was not a valid floor number. Please enter a floor between {CurrentFloor} and {TopFloor}: ");
-                    result = int.TryParse(Console.ReadLine(), out desiredFloor);
-                }
-
-                var passenger = new Passenger(desiredFloor);
-                if (desiredFloor > _finalDestinationFloor)
-                {
-                    _finalDestinationFloor = desiredFloor;
-                }
-
-                Passengers.Add(passenger);
-            }
-            else if (Direction == Direction.Down)
-            {
-                Console.Write($"Passenger going down. Please enter a floor between 1 and {CurrentFloor}: ");
-                var result = int.TryParse(Console.ReadLine(), out int desiredFloor);
-
-                while (desiredFloor > CurrentFloor || desiredFloor < 1  )
-                {
-                    Console.Write($"That was not a valid floor number. Please enter a floor between 1 and {CurrentFloor}: ");
-                    result = int.TryParse(Console.ReadLine(), out desiredFloor);
-                }
-
-                var passenger = new Passenger(desiredFloor);
-                if (desiredFloor < _finalDestinationFloor)
-                {
-                    _finalDestinationFloor = desiredFloor;
-                }
-                Passengers.Add(passenger);
-            }
-
-            PendingRequests.Remove(newPassenger);
-        }
+        PendingRequests.RemoveAll(p => p.Floor == CurrentFloor && p.Direction == Direction);
     }
+
     public void RequestElevator(int passengerFloor, Direction direction)
     {
         if (Direction == Direction.Waiting)
@@ -116,7 +94,7 @@ public class PendingRequest
 
 public class Passenger(int desiredFloor)
 {
-    public int DesiredFloor = desiredFloor;
+    public int Floor = desiredFloor;
 }
 
 public enum Direction

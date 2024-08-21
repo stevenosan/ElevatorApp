@@ -36,7 +36,19 @@ while (command != "X")
         elevator.RequestElevator(floor, direction);
     }
 
-    elevator.EmbarkPassengers();
+    //elevator.EmbarkPassengers();
+    var passengersAtFloor = elevator.PendingRequests.Count(r => r.Floor == elevator.CurrentFloor && r.Direction == elevator.Direction);
+    var floors = new List<int>();
+    for (int i = 1; i <= passengersAtFloor; i++)
+    {
+        Console.WriteLine($"There are currently {passengersAtFloor} at the current floor waiting to go {elevator.Direction}.");
+        Console.Write($"Please enter the destination floor for Passenger {i} of {passengersAtFloor} from {elevator.MinFloor} to {elevator.MaxFloor}: ");
+        var floor = int.Parse(Console.ReadLine());
+        floors.Add(floor); 
+    }
+
+    if(passengersAtFloor > 0)
+        elevator.EmbarkPassengers_Updated(floors.ToArray());
 
     elevator.Move();
     Console.WriteLine("----------------TICK----------------");

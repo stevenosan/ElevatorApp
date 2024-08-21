@@ -42,7 +42,7 @@ public class Tests
     [Test]
     public void GivenDirectionIsWaiting_WhenMove_ThenFloorDoesNotChangeAndPassTimeByOne()
     {
-        elevator.Direction = Direction.Down;
+        elevator.Direction = Direction.Waiting;
         elevator.CurrentFloor = 5;
         elevator.Time = 5;
 
@@ -66,7 +66,7 @@ public class Tests
         elevator.DisembarkPassengers();
 
         elevator.Passengers.Count.Should().Be(2);
-        elevator.Passengers.Count(p => p.DesiredFloor == 2).Should().Be(0);
+        elevator.Passengers.Count(p => p.Floor == 2).Should().Be(0);
     }
 
     [Test]
@@ -168,5 +168,57 @@ public class Tests
         elevator.RequestElevator(floor, direction);
 
         elevator.Direction.Should().Be(Direction.Up);
+    }
+
+    [Test]
+    public void GivenDirectionIsUp_WhenGetMinFloor_ThenReturnCurrentFloorPlusOne()
+    {
+        var currentFloor = 5;
+
+        elevator.CurrentFloor = currentFloor;
+        elevator.Direction = Direction.Up;
+
+        var result = elevator.MinFloor;
+
+        result.Should().Be(6);
+    }
+
+    [Test]
+    public void GivenDirectionIsDown_WhenGetMinFloor_ThenReturnOne()
+    {
+        var currentFloor = 5;
+
+        elevator.CurrentFloor = currentFloor;
+        elevator.Direction = Direction.Down;
+
+        var result = elevator.MinFloor;
+
+        result.Should().Be(1);
+    }
+
+    [Test]
+    public void GivenDirectionIsUp_WhenGetMaxFloor_ThenReturnTopFloor()
+    {
+        var currentFloor = 5;
+
+        elevator.CurrentFloor = currentFloor;
+        elevator.Direction = Direction.Up;
+
+        var result = elevator.MaxFloor;
+
+        result.Should().Be(elevator.TopFloor);
+    }
+
+    [Test]
+    public void GivenDirectionIsDown_WhenGetMaxFloor_ThenReturnCurrentFloorMinusOne()
+    {
+        var currentFloor = 5;
+
+        elevator.CurrentFloor = currentFloor;
+        elevator.Direction = Direction.Down;
+
+        var result = elevator.MaxFloor;
+
+        result.Should().Be(4);
     }
 }
