@@ -43,8 +43,13 @@ public class Elevator
         return disembarkCount;
     }
 
-    public void EmbarkPassengers_Updated(int[] desiredPassengerFloors)
+    public void EmbarkPassengers(int[] desiredPassengerFloors)
     {
+        if(!PendingRequests.Any(p => p.Floor == CurrentFloor && p.Direction == Direction))
+        {
+            return;
+        }
+
         var passengers = desiredPassengerFloors.Select(f => new Passenger(f));
 
         if (Direction == Direction.Up && desiredPassengerFloors.Max() > _finalDestinationFloor)

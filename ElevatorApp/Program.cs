@@ -24,7 +24,7 @@ while (command != "X")
     if(command != "S")
     {
         var result = int.TryParse(command, out int floor);
-        while (!result || elevator.TopFloor > 10 || floor < 1)
+        while (!result || floor > elevator.TopFloor || floor < 1)
         {
             Console.Write("That was not a valid floor number. Please enter 1-10: ");
             command = Console.ReadLine();
@@ -43,12 +43,19 @@ while (command != "X")
     {
         Console.WriteLine($"There are currently {passengersAtFloor} at the current floor waiting to go {elevator.Direction}.");
         Console.Write($"Please enter the destination floor for Passenger {i} of {passengersAtFloor} from {elevator.MinFloor} to {elevator.MaxFloor}: ");
-        var floor = int.Parse(Console.ReadLine());
+        var result = int.TryParse(Console.ReadLine(), out int floor);
+
+        while (!result || floor > elevator.MinFloor || floor < elevator.MaxFloor)
+        {
+            Console.Write($"That was not a valid floor number. Please enter a floor between {elevator.MinFloor}-{elevator.MaxFloor}: ");
+            command = Console.ReadLine();
+        }
+
         floors.Add(floor); 
     }
 
     if(passengersAtFloor > 0)
-        elevator.EmbarkPassengers_Updated(floors.ToArray());
+        elevator.EmbarkPassengers(floors.ToArray());
 
     elevator.Move();
     Console.WriteLine("----------------TICK----------------");

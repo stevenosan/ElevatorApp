@@ -27,6 +27,7 @@ public class Tests
         elevator.Time.Should().Be(6);
     }
 
+
     [Test]
     public void GivenDirectionIsDown_WhenMove_ThenDecrementFloorByOneAndPassTimeByOne()
     {
@@ -220,5 +221,47 @@ public class Tests
         var result = elevator.MaxFloor;
 
         result.Should().Be(4);
+    }
+
+    [Test]
+    public void GivenArrayOfPassengerFloors_WhenEmbarkPassengers_ThenAddPassengers()
+    {
+        var floors = Enumerable.Range(2, 6).Select(i => i).ToArray();
+
+        elevator.CurrentFloor = 5;
+        elevator.PendingRequests.AddRange(floors.Select(i => new PendingRequest { Floor = 5, Direction = Direction.Up }));
+        elevator.Direction = Direction.Up;
+
+        elevator.EmbarkPassengers(floors);
+        elevator.Passengers.Count.Should().Be(6);
+    }
+
+    [Test]
+    public void GivenArrayOfPassengerFloors_WhenEmbarkPassengers_ThenRemoveAllPendingRequestsForFloorAndDirection()
+    {
+        var floors = Enumerable.Range(2, 6).Select(i => i).ToArray();
+
+        elevator.CurrentFloor = 5;
+        elevator.PendingRequests.AddRange(floors.Select(i => new PendingRequest { Floor = 5, Direction = Direction.Up }));
+        elevator.PendingRequests.Add(new PendingRequest { Floor = 5, Direction = Direction.Down });
+        elevator.Direction = Direction.Up;
+
+        elevator.EmbarkPassengers(floors);
+        elevator.PendingRequests.Count.Should().Be(1);
+
+    }
+
+    [Test]
+    public void GivenNoPendingRequestsAtFloorInDirection_WhenEmbarkPassengers_ThenDoNothing()
+    {
+        var floors = Enumerable.Range(2, 6).Select(i => i).ToArray();
+
+        elevator.CurrentFloor = 5;
+        elevator.PendingRequests.AddRange(floors.Select(i => new PendingRequest { Floor = 6, Direction = Direction.Up }));
+        elevator.Direction = Direction.Up;
+
+        elevator.EmbarkPassengers(floors);
+        elevator.Passengers.Count.Should().Be(0);
+        elevator.PendingRequests.Count.Should().Be(6);
     }
 }
