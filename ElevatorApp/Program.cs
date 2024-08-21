@@ -4,14 +4,12 @@ using ElevatorApp;
 
 var elevator = new Elevator();
 
-//var nextFloor = 999;
-
 Console.WriteLine("The Ellevation Elevator Simulator has started.");
 
 var command = "";
 while (command != "X")
 {
-    Console.Write("Please enter the floor of the current passenger (1-10). Enter S to Skip, X to end: ");
+    Console.Write("Please enter the floor of the waiting passenger (1-10). Enter S to Skip, X to end: ");
     command = Console.ReadLine();
     if (command == "X")
     { break; }
@@ -24,7 +22,7 @@ while (command != "X")
             command = Console.ReadLine();
         }
 
-        Console.Write("Please enter the direction the current passenger wants to go (U for Up, D for Down): ");
+        Console.Write("Please enter the direction the waiting passenger wants to go (U for Up, D for Down): ");
         var direction = (Direction)char.Parse(Console.ReadLine());
 
         elevator.RequestElevator(floor, direction);
@@ -51,8 +49,8 @@ while (command != "X")
     }
 
     Console.WriteLine($"{waitingPassengers} have embarked at floor {elevator.CurrentFloor}");
-
-    Console.WriteLine($"TICK: Time: {elevator.Time}, Direction: {elevator.Direction}, floor: {elevator.CurrentFloor}");
+    Console.WriteLine("----------------TICK----------------");
+    Console.WriteLine($"Time: {elevator.Time}, Direction: {elevator.Direction}, floor: {elevator.CurrentFloor}");
     elevator.Move();
 }
 
