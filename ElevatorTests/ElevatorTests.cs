@@ -16,23 +16,11 @@ public class Tests
     }
 
     [Test]
-    public void GivenNoOneOnElevatorOrRequestedStops_WhenMove_ThenDoNotMoveAndPassTime()
-    {
-        elevator.CurrentFloor = 1;
-        elevator.Time = 5;
-
-        elevator.Move();
-        elevator.CurrentFloor.Should().Be(1);
-        elevator.Time.Should().Be(6);
-    }
-
-    [Test]
     public void GivenDirectionIsUp_WhenMove_ThenIncrementFloorByOneAndPassTimeByOne()
     {
+        elevator.Direction = Direction.Up;
         elevator.CurrentFloor = 1;
         elevator.Time = 5;
-
-        elevator.Passengers.Add(new Passenger(3));
 
         elevator.Move();
         elevator.CurrentFloor.Should().Be(2);
@@ -42,13 +30,24 @@ public class Tests
     [Test]
     public void GivenDirectionIsDown_WhenMove_ThenDecrementFloorByOneAndPassTimeByOne()
     {
+        elevator.Direction = Direction.Down;
         elevator.CurrentFloor = 5;
         elevator.Time = 5;
 
-        elevator.Passengers.Add(new Passenger(3));
-
         elevator.Move();
         elevator.CurrentFloor.Should().Be(4);
+        elevator.Time.Should().Be(6);
+    }
+
+    [Test]
+    public void GivenDirectionIsWaiting_WhenMove_ThenFloorDoesNotChangeAndPassTimeByOne()
+    {
+        elevator.Direction = Direction.Down;
+        elevator.CurrentFloor = 5;
+        elevator.Time = 5;
+
+        elevator.Move();
+        elevator.CurrentFloor.Should().Be(5);
         elevator.Time.Should().Be(6);
     }
 
@@ -71,91 +70,103 @@ public class Tests
     }
 
     [Test]
-    public void GivenDestinationFloor_WhenEmbarkPassenger_ThenPassengerAddedToEndWithDestinationFloor()
+    public void GivenNoMorePassengersOrPendingRequests_WhenDisembarkPassengers_ThenSetDirectionToWaiting()
     {
-        var currentPassenger = new Passenger(5);
-        elevator.PendingRequests.Add(new PendingRequest { Direction = Direction.Up, Floor = 1 });
-        elevator.Passengers.Add(currentPassenger);
+        var currentFloor = 5;
 
-        var destinationFloor = 1234;
-
-        elevator.EmbarkPassenger(destinationFloor);
-
-        elevator.Passengers.Count.Should().Be(2);
-        elevator.Passengers.Last().DesiredFloor.Should().Be(1234);
-
-    }
-
-    [Test]
-    public void GivenOnBoardPassengerThatWantsToGoUp_WhenGetDirection_ThenDirectionIsUp()
-    {
+        elevator.CurrentFloor = currentFloor;
         var passenger = new Passenger(5);
         elevator.Passengers.Add(passenger);
+        elevator.Direction = Direction.Up;
 
-        var result = elevator.Direction;
-        result.Should().Be(Direction.Up);
+        elevator.DisembarkPassengers();
+
+        elevator.Direction.Should().Be(Direction.Waiting);
     }
 
     [Test]
-    public void GivenOnBoardPassengerThatWantsToGoDown_WhenGetDirection_ThenDirectionIsDown()
+    public void GivenPassengersStillOn_WhenDisembarkPassengers_DirectionDoesNotChange()
     {
-        var passenger = new Passenger(5);
-        elevator.CurrentFloor = 7;
+        var currentFloor = 5;
+
+        elevator.CurrentFloor = currentFloor;
+        var passenger = new Passenger(8);
         elevator.Passengers.Add(passenger);
+        elevator.Direction = Direction.Up;
 
-        var result = elevator.Direction;
-        result.Should().Be(Direction.Down);
+        elevator.DisembarkPassengers();
+
+        elevator.Direction.Should().Be(Direction.Up);
     }
 
     [Test]
-    public void GivenOnBoardPassengerThatWantsToGoUp_ButWaitingPassengerWantsToGoDown_WhenGetDirection_ThenDirectionIsUp()
+    public void GivenNoMorePassengersButPendingRequests_WhenDisembarkPassengers_ThenSetDirectionToFirstPendingRequest()
     {
-        var passenger = new Passenger(5);
-
-        var request = new PendingRequest { Floor = 3, Direction = Direction.Down };
-
-        elevator.Passengers.Add(passenger);
-        elevator.PendingRequests.Add(request);
-
-        var result = elevator.Direction;
-        result.Should().Be(Direction.Up);
-    }
-
-    [Test]
-    public void GivenOnBoardPassengerThatWantsToGoDown_AndWaitingPassengerWantsToGoDown_WhenGetDirection_ThenDirectionIsDown()
-    {
-        elevator.CurrentFloor = 7;
-        var passenger = new Passenger(5);
-
-        var request = new PendingRequest { Floor = 3, Direction = Direction.Down };
-
-        elevator.Passengers.Add(passenger);
-        elevator.PendingRequests.Add(request);
-
-        var result = elevator.Direction;
-        result.Should().Be(Direction.Down);
-    }
-
-    [Test]
-    public void GivenNoOnboardPassengerAndRequestIsAbove_WhenGetDirection_ThenDirectionIsUp()
-    {
-        var request = new PendingRequest { Floor = 3, Direction = Direction.Down };
-
-        elevator.PendingRequests.Add(request);
-
-        var result = elevator.Direction;
-        result.Should().Be(Direction.Up);
-    }
-
-    [Test]
-    public void GivenNoOnboardPassengerAndRequestIsBelow_WhenGetDirection_ThenDirectionIsDown()
-    {
+        var currentFloor = 5;
         elevator.CurrentFloor = 5;
-        var request = new PendingRequest { Floor = 3, Direction = Direction.Down };
+        var pendingRequest1 = new PendingRequest { Direction = Direction.Up };
+        var pendingRequest2 = new PendingRequest { Direction = Direction.Down };
 
-        elevator.PendingRequests.Add(request);
+        elevator.PendingRequests.Add(pendingRequest1);
+        elevator.PendingRequests.Add(pendingRequest2);
 
-        var result = elevator.Direction;
-        result.Should().Be(Direction.Down);
+        elevator.Direction = Direction.Down;
+
+        elevator.DisembarkPassengers();
+
+        elevator.Direction.Should().Be(Direction.Up);
+    }
+
+    [Test]
+    public void GivenPassengersToDisembark_WhenDisembarkPassengers_ThenRemoveThosePassengersAndReturnCount()
+    {
+        var currentFloor = 5;
+
+        var passenger1 = new Passenger(5);
+        var passenger2 = new Passenger(6);
+
+        elevator.CurrentFloor = 5;
+        elevator.Passengers.Add(passenger1);
+        elevator.Passengers.Add(passenger2);
+
+        var result = elevator.DisembarkPassengers();
+
+        result.Should().Be(1);
+        elevator.Passengers.Count().Should().Be(1);
+        elevator.Passengers.Single().Should().Be(passenger2);
+    }
+
+    [Test]
+    public void GivenElevatorIsWaiting_WhenRequestElevator_ThenSetDirectionToRequestedDirection()
+    {
+        var floor = 5;
+        var direction = Direction.Up;
+
+        elevator.RequestElevator(floor, direction);
+
+        elevator.Direction.Should().Be(Direction.Up);
+    }
+
+    [Test]
+    public void GivenElevatorIsNotWaiting_WhenRequestElevator_ThenDoNotChangeDirection()
+    {
+        var floor = 5;
+        var direction = Direction.Up;
+
+        elevator.Direction = Direction.Down;
+        elevator.RequestElevator(floor, direction);
+
+        elevator.Direction.Should().Be(Direction.Down);
+    }
+
+    [Test]
+    public void GivenFloorAndDirection_WhenRequestElevator_ThenAddPendingRequest()
+    {
+        var floor = 5;
+        var direction = Direction.Up;
+
+        elevator.RequestElevator(floor, direction);
+
+        elevator.Direction.Should().Be(Direction.Up);
     }
 }
