@@ -45,7 +45,7 @@ while (command != "X")
         Console.Write($"Please enter the destination floor for Passenger {i} of {passengersAtFloor} from {elevator.MinFloor} to {elevator.MaxFloor}: ");
         var result = int.TryParse(Console.ReadLine(), out int floor);
 
-        while (!result || floor > elevator.MinFloor || floor < elevator.MaxFloor)
+        while (!result || (floor < elevator.MinFloor && floor > elevator.MaxFloor))
         {
             Console.Write($"That was not a valid floor number. Please enter a floor between {elevator.MinFloor}-{elevator.MaxFloor}: ");
             command = Console.ReadLine();

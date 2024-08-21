@@ -19,7 +19,19 @@ public class Elevator
     public int CurrentFloor = 1;
     public int TopFloor => 10;
     public int Time = 0;
-    public Direction Direction = Direction.Waiting;
+    public Direction Direction
+    {
+        get
+        {
+            if(_finalDestinationFloor == 0)
+            {
+                return Direction.Waiting;
+            }
+
+            return _finalDestinationFloor > CurrentFloor ? Direction.Up : Direction.Down;
+        }
+    }
+    //public Direction Direction = Direction.Waiting;
     public List<Passenger> Passengers = [];
     private int _finalDestinationFloor;
 
@@ -31,13 +43,12 @@ public class Elevator
 
         if (!Passengers.Any() && !PendingRequests.Any())
         {
-            Direction = Direction.Waiting;
+            _finalDestinationFloor = 0;
         }
 
-        if (PendingRequests.Any() && !Passengers.Any())
+        if (PendingRequests.Any() && Direction == Direction.Waiting)
         {
             _finalDestinationFloor = PendingRequests.First().Floor;
-            Direction = PendingRequests.First().Direction;
         }
 
         return disembarkCount;
@@ -68,12 +79,12 @@ public class Elevator
 
     public void RequestElevator(int passengerFloor, Direction direction)
     {
-        if (Direction == Direction.Waiting)
+        if(_finalDestinationFloor == 0)
         {
-            Direction = direction;
+            _finalDestinationFloor = passengerFloor;
         }
 
-        PendingRequests.Add(new PendingRequest { Direction = direction, Floor = passengerFloor });
+            PendingRequests.Add(new PendingRequest { Direction = direction, Floor = passengerFloor });
     }
 
     public void Move()
