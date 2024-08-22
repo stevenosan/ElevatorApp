@@ -19,19 +19,7 @@ public class Elevator
     public int CurrentFloor = 1;
     public int TopFloor => 10;
     public int Time = 0;
-    public Direction Direction
-    {
-        get
-        {
-            if(_finalDestinationFloor == 0)
-            {
-                return Direction.Waiting;
-            }
-
-            return _finalDestinationFloor > CurrentFloor ? Direction.Up : Direction.Down;
-        }
-    }
-    //public Direction Direction = Direction.Waiting;
+    public Direction Direction = Direction.Waiting;
     public List<Passenger> Passengers = [];
     private int _finalDestinationFloor;
 
@@ -44,11 +32,13 @@ public class Elevator
         if (!Passengers.Any() && !PendingRequests.Any())
         {
             _finalDestinationFloor = 0;
+            Direction = Direction.Waiting;
         }
 
-        if (PendingRequests.Any() && Direction == Direction.Waiting)
+        if (PendingRequests.Any() && !Passengers.Any())
         {
             _finalDestinationFloor = PendingRequests.First().Floor;
+            Direction = PendingRequests.First().Direction;
         }
 
         return disembarkCount;
@@ -56,7 +46,7 @@ public class Elevator
 
     public void EmbarkPassengers(int[] desiredPassengerFloors)
     {
-        if(!PendingRequests.Any(p => p.Floor == CurrentFloor && p.Direction == Direction))
+        if (!PendingRequests.Any(p => p.Floor == CurrentFloor && p.Direction == Direction))
         {
             return;
         }
@@ -79,23 +69,27 @@ public class Elevator
 
     public void RequestElevator(int passengerFloor, Direction direction)
     {
-        if(_finalDestinationFloor == 0)
+        if (_finalDestinationFloor == 0)
         {
             _finalDestinationFloor = passengerFloor;
+            Direction = direction;
         }
 
-            PendingRequests.Add(new PendingRequest { Direction = direction, Floor = passengerFloor });
+        PendingRequests.Add(new PendingRequest { Direction = direction, Floor = passengerFloor });
     }
 
     public void Move()
     {
-        if (Direction == Direction.Up)
+        if (_finalDestinationFloor != 0)
         {
-            CurrentFloor++;
-        }
-        else if (Direction == Direction.Down)
-        {
-            CurrentFloor--;
+            if (_finalDestinationFloor > CurrentFloor)
+            {
+                CurrentFloor++;
+            }
+            else
+            {
+                CurrentFloor--;
+            }
         }
 
         Time++;
